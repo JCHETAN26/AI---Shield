@@ -1,0 +1,2 @@
+model_type,accuracy,features,target,dataset_name,n_samples,n_features,n_classes,has_scaler
+tree_based,0.97,"['feature_1', 'feature_2', 'feature_3', 'feature_4', 'feature_5']",class,Binary Classification (Simple),1000,5,2,False

@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - AI Shield{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Header -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="mb-0">
+                            <i class="fas fa-check-circle"></i> Security Analysis Complete
+                        </h4>
+                        <p class="mb-0">Session: {{ session_id }}</p>
+                    </div>
+                    <div class="col-auto">
+                        <a href="/download/{{ session_id }}" class="btn btn-light">
+                            <i class="fas fa-download"></i> Download Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Vulnerability Summary -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center h-100 border-{% if results.vulnerability_summary.overall_vulnerability_score > 0.7 %}danger{% elif results.vulnerability_summary.overall_vulnerability_score > 0.4 %}warning{% else %}success{% endif %}">
+                    <div class="card-body">
+                        <h2 class="display-4 text-{% if results.vulnerability_summary.overall_vulnerability_score > 0.7 %}danger{% elif results.vulnerability_summary.overall_vulnerability_score > 0.4 %}warning{% else %}success{% endif %}">
+                            {{ "%.1f"|format(results.vulnerability_summary.overall_vulnerability_score * 100) }}%
+                        </h2>
+                        <h5>Vulnerability Score</h5>
+                        <p class="text-muted">Overall model vulnerability to adversarial attacks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h2 class="display-4 text-danger">
+                            {{ "%.1f"|format(results.vulnerability_summary.attack_success_rates.fgsm * 100) }}%
+                        </h2>
+                        <h5>FGSM Success Rate</h5>
+                        <p class="text-muted">Fast Gradient Sign Method attack effectiveness</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h2 class="display-4 text-warning">
+                            {{ "%.1f"|format(results.vulnerability_summary.attack_success_rates.pgd * 100) }}%
+                        </h2>
+                        <h5>PGD Success Rate</h5>
+                        <p class="text-muted">Projected Gradient Descent attack effectiveness</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Risk Assessment -->
+        <div class="card mb-4">
+            <div class="card-header bg-{% if results.vulnerability_summary.overall_vulnerability_score > 0.7 %}danger{% elif results.vulnerability_summary.overall_vulnerability_score > 0.4 %}warning{% else %}success{% endif %} text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Risk Assessment & Recommendations
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if results.vulnerability_summary.recommendations %}
+                    <ul class="list-group list-group-flush">
+                        {% for recommendation in results.vulnerability_summary.recommendations %}
+                            <li class="list-group-item">
+                                <i class="fas fa-lightbulb text-warning"></i> {{ recommendation }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No specific recommendations available.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Attack Details -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-crosshairs"></i> FGSM Attack Results
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Original Accuracy:</strong><br>
+                                <span class="h5 text-success">{{ "%.1f"|format(results.adversarial_attacks.fgsm.original_accuracy * 100) }}%</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Adversarial Accuracy:</strong><br>
+                                <span class="h5 text-danger">{{ "%.1f"|format(results.adversarial_attacks.fgsm.adversarial_accuracy * 100) }}%</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <p><strong>Epsilon:</strong> {{ results.adversarial_attacks.fgsm.parameters.epsilon }}</p>
+                        <p><strong>Samples Tested:</strong> {{ results.adversarial_attacks.fgsm.num_samples }}</p>
+                        {% if results.adversarial_attacks.fgsm.perturbation_stats %}
+                            <p><strong>Avg Perturbation:</strong> {{ "%.4f"|format(results.adversarial_attacks.fgsm.perturbation_stats.average_perturbation) }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-target"></i> PGD Attack Results
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Original Accuracy:</strong><br>
+                                <span class="h5 text-success">{{ "%.1f"|format(results.adversarial_attacks.pgd.original_accuracy * 100) }}%</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Adversarial Accuracy:</strong><br>
+                                <span class="h5 text-danger">{{ "%.1f"|format(results.adversarial_attacks.pgd.adversarial_accuracy * 100) }}%</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <p><strong>Epsilon:</strong> {{ results.adversarial_attacks.pgd.parameters.epsilon }}</p>
+                        {% if results.adversarial_attacks.pgd.parameters.alpha %}
+                            <p><strong>Alpha:</strong> {{ results.adversarial_attacks.pgd.parameters.alpha }}</p>
+                        {% endif %}
+                        {% if results.adversarial_attacks.pgd.parameters.max_iter %}
+                            <p><strong>Iterations:</strong> {{ results.adversarial_attacks.pgd.parameters.max_iter }}</p>
+                        {% endif %}
+                        <p><strong>Samples Tested:</strong> {{ results.adversarial_attacks.pgd.num_samples }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- XAI Explanations -->
+        {% if results.xai_explanations %}
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb"></i> Explainable AI Analysis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if results.xai_explanations.shap %}
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-chart-bar"></i> SHAP Analysis</h6>
+                                {% if results.xai_explanations.shap.important_features %}
+                                    <p><strong>Top Important Features:</strong></p>
+                                    <ol>
+                                        {% for feature in results.xai_explanations.shap.important_features[:5] %}
+                                            <li>{{ feature }}</li>
+                                        {% endfor %}
+                                    </ol>
+                                {% endif %}
+                                <p><strong>Explainer Type:</strong> {{ results.xai_explanations.shap.explainer_type }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        {% if results.xai_explanations.lime %}
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-search"></i> LIME Analysis</h6>
+                                {% if results.xai_explanations.lime.important_features %}
+                                    <p><strong>Top Important Features:</strong></p>
+                                    <ol>
+                                        {% for feature in results.xai_explanations.lime.important_features[:5] %}
+                                            <li>{{ feature }}</li>
+                                        {% endfor %}
+                                    </ol>
+                                {% endif %}
+                                <p><strong>Explanations Generated:</strong> {{ results.xai_explanations.lime.num_explanations or 0 }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Dataset Information -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-database"></i> Dataset Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Samples:</strong> {{ results.dataset_info.num_samples }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Features:</strong> {{ results.dataset_info.num_features }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Model File:</strong> {{ results.metadata.model_file }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Data File:</strong> {{ results.metadata.data_file }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analysis Metadata -->
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle"></i> Analysis Metadata
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Timestamp:</strong> {{ results.metadata.timestamp }}</p>
+                        <p><strong>Session ID:</strong> {{ session_id }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        {% if results.metadata.configuration %}
+                            <p><strong>Configuration:</strong></p>
+                            <ul class="small">
+                                <li>FGSM Epsilon: {{ results.metadata.configuration.fgsm_epsilon }}</li>
+                                <li>PGD Epsilon: {{ results.metadata.configuration.pgd_epsilon }}</li>
+                                <li>Max Samples: {{ results.metadata.configuration.max_samples }}</li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add any result-specific JavaScript here
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
+{% endblock %}

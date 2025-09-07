@@ -1,0 +1,2 @@
+model_type,accuracy,features,target,dataset_name,n_samples,n_features,n_classes,has_scaler
+neural,0.895,"['age', 'annual_income', 'credit_score', 'debt_to_income_ratio', 'employment_length_years']",default_risk,Credit Risk Prediction,1000,5,2,True

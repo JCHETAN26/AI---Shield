@@ -1,0 +1,467 @@
+{
+  "metadata": {
+    "session_id": "demo_fbef079f",
+    "timestamp": "2025-08-30T10:52:26.274000",
+    "model_file": "demo_model.joblib",
+    "data_file": "demo_dataset.csv",
+    "configuration": {
+      "fgsm_epsilon": 0.3,
+      "pgd_epsilon": 0.3,
+      "pgd_alpha": 0.03,
+      "pgd_iterations": 80,
+      "max_samples": 200,
+      "include_shap": true,
+      "include_lime": true
+    }
+  },
+  "dataset_info": {
+    "num_samples": 120,
+    "num_features": 2,
+    "feature_names": [
+      "x_coord",
+      "y_coord"
+    ]
+  },
+  "adversarial_attacks": {
+    "fgsm": {
+      "attack_type": "FGSM_sklearn_simulation",
+      "parameters": {
+        "epsilon": 0.3
+      },
+      "original_accuracy": 1.0,
+      "adversarial_accuracy": 0.6833333333333333,
+      "success_rate": 0.31666666666666665,
+      "num_samples": 120,
+      "perturbation_stats": {
+        "average_perturbation": 0.4610670198583691,
+        "max_perturbation": 2.3116388943928325,
+        "l2_norm": 0.7192702402712385
+      },
+      "adversarial_examples": [
+        [
+          -0.19708866453519597,
+          2.244806489516448
+        ],
+        [
+          -1.5029835337939859,
+          -0.9078357629256187
+        ],
+        [
+          -0.6728673776976714,
+          0.13615792376785096
+        ],
+        [
+          -0.40285763674918906,
+          -0.35776627464789024
+        ],
+        [
+          -0.32498365369655463,
+          0.18490596873977927
+        ],
+        [
+          -1.0869232547170409,
+          0.3496262054312482
+        ],
+        [
+          0.23831506834662752,
+          1.6250349179477543
+        ],
+        [
+          -0.6090133778581419,
+          0.2919349296524786
+        ],
+        [
+          -0.6017744422236015,
+          0.964056780655093
+        ],
+        [
+          0.5597630897928116,
+          -0.33915013030828833
+        ]
+      ],
+      "best_strategy": "gaussian",
+      "note": "Adversarial simulation using gaussian strategy for scikit-learn model"
+    },
+    "pgd": {
+      "attack_type": "PGD_sklearn_simulation",
+      "parameters": {
+        "epsilon": 0.3
+      },
+      "original_accuracy": 1.0,
+      "adversarial_accuracy": 0.6833333333333333,
+      "success_rate": 0.31666666666666665,
+      "num_samples": 120,
+      "perturbation_stats": {
+        "average_perturbation": 0.4610670198583691,
+        "max_perturbation": 2.3116388943928325,
+        "l2_norm": 0.7192702402712385
+      },
+      "adversarial_examples": [
+        [
+          -0.19708866453519597,
+          2.244806489516448
+        ],
+        [
+          -1.5029835337939859,
+          -0.9078357629256187
+        ],
+        [
+          -0.6728673776976714,
+          0.13615792376785096
+        ],
+        [
+          -0.40285763674918906,
+          -0.35776627464789024
+        ],
+        [
+          -0.32498365369655463,
+          0.18490596873977927
+        ],
+        [
+          -1.0869232547170409,
+          0.3496262054312482
+        ],
+        [
+          0.23831506834662752,
+          1.6250349179477543
+        ],
+        [
+          -0.6090133778581419,
+          0.2919349296524786
+        ],
+        [
+          -0.6017744422236015,
+          0.964056780655093
+        ],
+        [
+          0.5597630897928116,
+          -0.33915013030828833
+        ]
+      ],
+      "best_strategy": "gaussian",
+      "note": "Adversarial simulation using gaussian strategy for scikit-learn model"
+    }
+  },
+  "xai_explanations": {
+    "shap": {
+      "explainer_type": "KernelExplainer",
+      "feature_importance": [
+        {
+          "feature": "x_coord",
+          "importance": 0.2760000000000001
+        },
+        {
+          "feature": "y_coord",
+          "importance": 0.264
+        }
+      ],
+      "important_features": [
+        "x_coord",
+        "y_coord"
+      ],
+      "shap_values_summary": {
+        "mean_abs_shap": 0.27,
+        "max_abs_shap": 0.7000000000000002,
+        "feature_count": 2
+      },
+      "adversarial_analysis": {
+        "fgsm": {
+          "importance_shift": [
+            -0.025000000000000022,
+            0.02700000000000008
+          ],
+          "most_affected_features": [
+            "y_coord",
+            "x_coord"
+          ]
+        },
+        "pgd": {
+          "importance_shift": [
+            -0.025000000000000022,
+            0.02700000000000008
+          ],
+          "most_affected_features": [
+            "y_coord",
+            "x_coord"
+          ]
+        }
+      },
+      "top_positive_features": [
+        "x_coord",
+        "y_coord"
+      ],
+      "top_negative_features": []
+    },
+    "lime": {
+      "num_explanations": 10,
+      "explanations": [
+        {
+          "instance_id": 0,
+          "prediction": 0.0,
+          "feature_importance": {
+            "y_coord": -0.4027725068962108,
+            "x_coord": 0.4022107264008765
+          },
+          "explanation_text": "[('y_coord > 0.95', -0.4027725068962108), ('-0.16 < x_coord <= 0.77', 0.4022107264008765)]"
+        },
+        {
+          "instance_id": 1,
+          "prediction": 0.0,
+          "feature_importance": {
+            "x_coord": -0.4555422779528894,
+            "y_coord": -0.20206037998424545
+          },
+          "explanation_text": "[('x_coord <= -1.00', -0.4555422779528894), ('y_coord <= -0.77', -0.20206037998424545)]"
+        },
+        {
+          "instance_id": 2,
+          "prediction": 1.0,
+          "feature_importance": {
+            "y_coord": -0.393989508047635,
+            "x_coord": 0.28888746645193236
+          },
+          "explanation_text": "[('y_coord > 0.95', -0.393989508047635), ('-1.00 < x_coord <= -0.16', 0.28888746645193236)]"
+        },
+        {
+          "instance_id": 3,
+          "prediction": 1.0,
+          "feature_importance": {
+            "x_coord": 0.38982571835439805,
+            "y_coord": -0.1963541827226399
+          },
+          "explanation_text": "[('-0.16 < x_coord <= 0.77', 0.38982571835439805), ('y_coord <= -0.77', -0.1963541827226399)]"
+        },
+        {
+          "instance_id": 4,
+          "prediction": 1.0,
+          "feature_importance": {
+            "x_coord": 0.3104902991475297,
+            "y_coord": 0.2705757033281984
+          },
+          "explanation_text": "[('-1.00 < x_coord <= -0.16', 0.3104902991475297), ('0.28 < y_coord <= 0.95', 0.2705757033281984)]"
+        },
+        {
+          "instance_id": 5,
+          "prediction": 1.0,
+          "feature_importance": {
+            "x_coord": -0.4851664909763485,
+            "y_coord": 0.3139374139407537
+          },
+          "explanation_text": "[('x_coord <= -1.00', -0.4851664909763485), ('-0.77 < y_coord <= 0.28', 0.3139374139407537)]"
+        },
+        {
+          "instance_id": 6,
+          "prediction": 0.0,
+          "feature_importance": {
+            "y_coord": -0.4077492207700376,
+            "x_coord": 0.37923875649076927
+          },
+          "explanation_text": "[('y_coord > 0.95', -0.4077492207700376), ('-0.16 < x_coord <= 0.77', 0.37923875649076927)]"
+        },
+        {
+          "instance_id": 7,
+          "prediction": 1.0,
+          "feature_importance": {
+            "y_coord": -0.40296462523296417,
+            "x_coord": 0.2872885946116803
+          },
+          "explanation_text": "[('y_coord > 0.95', -0.40296462523296417), ('-1.00 < x_coord <= -0.16', 0.2872885946116803)]"
+        },
+        {
+          "instance_id": 8,
+          "prediction": 1.0,
+          "feature_importance": {
+            "x_coord": 0.319019613373423,
+            "y_coord": 0.25381862063433175
+          },
+          "explanation_text": "[('-1.00 < x_coord <= -0.16', 0.319019613373423), ('0.28 < y_coord <= 0.95', 0.25381862063433175)]"
+        },
+        {
+          "instance_id": 9,
+          "prediction": 1.0,
+          "feature_importance": {
+            "x_coord": 0.39602644258464803,
+            "y_coord": -0.20488206292763775
+          },
+          "explanation_text": "[('-0.16 < x_coord <= 0.77', 0.39602644258464803), ('y_coord <= -0.77', -0.20488206292763775)]"
+        }
+      ],
+      "feature_importance": [
+        {
+          "feature": "x_coord",
+          "importance": 0.3713696386344495
+        },
+        {
+          "feature": "y_coord",
+          "importance": 0.30491042244846545
+        }
+      ],
+      "important_features": [
+        "x_coord",
+        "y_coord"
+      ],
+      "adversarial_analysis": {
+        "fgsm": {
+          "num_explained": 5,
+          "sample_explanations": [
+            {
+              "instance_id": 0,
+              "explanation": [
+                [
+                  "y_coord > 0.95",
+                  -0.3942569123629549
+                ],
+                [
+                  "-1.00 < x_coord <= -0.16",
+                  0.27845335345488054
+                ]
+              ]
+            },
+            {
+              "instance_id": 1,
+              "explanation": [
+                [
+                  "x_coord <= -1.00",
+                  -0.4362157490114806
+                ],
+                [
+                  "y_coord <= -0.77",
+                  -0.2077801179279951
+                ]
+              ]
+            },
+            {
+              "instance_id": 2,
+              "explanation": [
+                [
+                  "-0.77 < y_coord <= 0.28",
+                  0.3511404781663036
+                ],
+                [
+                  "-1.00 < x_coord <= -0.16",
+                  0.318414816958445
+                ]
+              ]
+            },
+            {
+              "instance_id": 3,
+              "explanation": [
+                [
+                  "-0.77 < y_coord <= 0.28",
+                  0.3457156023529563
+                ],
+                [
+                  "-1.00 < x_coord <= -0.16",
+                  0.3128010471409319
+                ]
+              ]
+            },
+            {
+              "instance_id": 4,
+              "explanation": [
+                [
+                  "-0.77 < y_coord <= 0.28",
+                  0.35666892711284054
+                ],
+                [
+                  "-1.00 < x_coord <= -0.16",
+                  0.2995140111071001
+                ]
+              ]
+            }
+          ]
+        },
+        "pgd": {
+          "num_explained": 5,
+          "sample_explanations": [
+            {
+              "instance_id": 0,
+              "explanation": [
+                [
+                  "y_coord > 0.95",
+                  -0.39676656750341466
+                ],
+                [
+                  "-1.00 < x_coord <= -0.16",
+                  0.28843662578070317
+                ]
+              ]
+            },
+            {
+              "instance_id": 1,
+              "explanation": [
+                [
+                  "x_coord <= -1.00",
+                  -0.47365810894505167
+                ],
+                [
+                  "y_coord <= -0.77",
+                  -0.19578113818121592
+                ]
+              ]
+            },
+            {
+              "instance_id": 2,
+              "explanation": [
+                [
+                  "-0.77 < y_coord <= 0.28",
+                  0.3456632247696965
+                ],
+                [
+                  "-1.00 < x_coord <= -0.16",
+                  0.3294278683644955
+                ]
+              ]
+            },
+            {
+              "instance_id": 3,
+              "explanation": [
+                [
+                  "-0.77 < y_coord <= 0.28",
+                  0.3561699758413933
+                ],
+                [
+                  "-1.00 < x_coord <= -0.16",
+                  0.3024218545085466
+                ]
+              ]
+            },
+            {
+              "instance_id": 4,
+              "explanation": [
+                [
+                  "-0.77 < y_coord <= 0.28",
+                  0.3411538046615417
+                ],
+                [
+                  "-1.00 < x_coord <= -0.16",
+                  0.31775416241985016
+                ]
+              ]
+            }
+          ]
+        }
+      },
+      "summary": {
+        "total_features": 2,
+        "explained_instances": 10,
+        "avg_importance": 0.33814003054145747
+      }
+    }
+  },
+  "vulnerability_summary": {
+    "overall_vulnerability_score": 0.31666666666666665,
+    "attack_success_rates": {
+      "fgsm": 0.31666666666666665,
+      "pgd": 0.31666666666666665
+    },
+    "critical_features": [
+      "x_coord",
+      "y_coord"
+    ],
+    "recommendations": [
+      "LOW RISK: Continue monitoring for new attack vectors",
+      "Regular security assessments recommended"
+    ]
+  }
+}

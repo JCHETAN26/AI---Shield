@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}AI Shield - Adversarial ML Security{% endblock %}
+
+{% block content %}
+<div class="hero-section bg-gradient-primary text-white text-center py-5 mb-5 rounded">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="fas fa-shield-alt"></i> AI Shield
+        </h1>
+        <p class="lead mb-4">
+            Advanced Adversarial Machine Learning Security Analysis
+        </p>
+        <p class="mb-4">
+            Test your ML models against adversarial attacks and understand vulnerabilities with explainable AI
+        </p>
+        <a href="{{ url_for('upload_files') }}" class="btn btn-light btn-lg">
+            <i class="fas fa-upload"></i> Start Analysis
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-crosshairs fa-3x text-danger"></i>
+                </div>
+                <h5 class="card-title">Adversarial Attacks</h5>
+                <p class="card-text">
+                    Test your models with FGSM and PGD attacks to discover vulnerabilities
+                    and measure robustness against adversarial examples.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-lightbulb fa-3x text-warning"></i>
+                </div>
+                <h5 class="card-title">Explainable AI</h5>
+                <p class="card-text">
+                    Understand why your model is vulnerable using SHAP and LIME explanations
+                    to identify critical features and attack vectors.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-chart-line fa-3x text-success"></i>
+                </div>
+                <h5 class="card-title">Security Reports</h5>
+                <p class="card-text">
+                    Get comprehensive security analysis with vulnerability scores,
+                    recommendations, and actionable insights.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-lg-8 mx-auto">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-rocket"></i> How It Works</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="step-number">1</div>
+                        <h6>Upload Files</h6>
+                        <p class="small">Upload your ML model and test dataset</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="step-number">2</div>
+                        <h6>Configure</h6>
+                        <p class="small">Set attack parameters and analysis options</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="step-number">3</div>
+                        <h6>Analyze</h6>
+                        <p class="small">Run adversarial attacks and XAI analysis</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="step-number">4</div>
+                        <h6>Results</h6>
+                        <p class="small">View detailed security report and recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-file-alt"></i> Supported Formats</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <h6>Models</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> .pkl (scikit-learn)</li>
+                            <li><i class="fas fa-check text-success"></i> .joblib</li>
+                            <li><i class="fas fa-check text-success"></i> .pth (PyTorch)</li>
+                            <li><i class="fas fa-check text-success"></i> .h5 (TensorFlow)</li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <h6>Data</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> .csv</li>
+                            <li><i class="fas fa-check text-success"></i> .json</li>
+                            <li><i class="fas fa-check text-success"></i> .parquet</li>
+                            <li><i class="fas fa-check text-success"></i> .xlsx</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Security Features</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-shield-alt text-primary"></i> FGSM Attack Testing</li>
+                    <li><i class="fas fa-shield-alt text-primary"></i> PGD Attack Testing</li>
+                    <li><i class="fas fa-eye text-info"></i> SHAP Explanations</li>
+                    <li><i class="fas fa-eye text-info"></i> LIME Explanations</li>
+                    <li><i class="fas fa-chart-bar text-success"></i> Vulnerability Scoring</li>
+                    <li><i class="fas fa-recommendations text-warning"></i> Security Recommendations</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

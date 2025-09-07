@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-08-29 23:21:07",
+  "summary": {
+    "total_tests": 4,
+    "passed": 0,
+    "failed": 4,
+    "success_rate": "0.0%"
+  },
+  "analysis_tests": [
+    {
+      "test": "Binary Simple - Random Forest",
+      "status": "failed",
+      "reason": "'AdversarialAttackEngine' object has no attribute 'run_attacks'"
+    },
+    {
+      "test": "Credit Risk - Logistic Regression",
+      "status": "failed",
+      "reason": "'AdversarialAttackEngine' object has no attribute 'run_attacks'"
+    },
+    {
+      "test": "Medical Diagnosis - SVM",
+      "status": "failed",
+      "reason": "'AdversarialAttackEngine' object has no attribute 'run_attacks'"
+    }
+  ],
+  "broadcasting_test": "failed",
+  "recommendations": [
+    "Some tests failed - check error messages above",
+    "Broadcasting fix test failed - check attack_engine.py"
+  ]
+}

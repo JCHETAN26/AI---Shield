@@ -1,0 +1,54 @@
+# AI Shield Configuration
+
+# AWS Settings
+aws:
+  region: "us-east-1"
+  bucket_name: "ai-shield-data-bucket"
+  profile: "default"
+
+# Attack Parameters
+adversarial_attacks:
+  fgsm:
+    epsilon: 0.1
+    description: "Fast Gradient Sign Method"
+  
+  pgd:
+    epsilon: 0.1
+    alpha: 0.01
+    max_iter: 40
+    description: "Projected Gradient Descent"
+
+# XAI Settings
+xai:
+  shap:
+    max_samples: 100
+    explainer_timeout: 300
+  
+  lime:
+    max_samples: 50
+    num_features: 10
+    num_samples: 1000
+
+# Model Settings
+models:
+  supported_formats: [".pth", ".pt", ".h5", ".pkl", ".joblib", ".onnx"]
+  default_framework: "pytorch"
+
+# Data Processing
+data:
+  test_size: 0.2
+  random_state: 42
+  scale_features: true
+  handle_missing: true
+
+# Logging
+logging:
+  level: "INFO"
+  console_output: true
+  log_directory: "logs"
+
+# Output Settings
+output:
+  format: "json"
+  save_adversarial_examples: true
+  max_examples_to_save: 10

@@ -1,0 +1,50 @@
+2025-08-29 17:28:57 - ai_shield - INFO - AI Shield Engine initialized successfully
+2025-08-29 17:28:57 - ai_shield - INFO - Starting AI Shield security analysis
+2025-08-29 17:28:57 - ai_shield - INFO - Downloading assets from S3 bucket: ai-shield-data-bucket-cj
+2025-08-29 17:28:58 - ai_shield - INFO - Assets downloaded successfully
+2025-08-29 17:28:58 - ai_shield - INFO - Loading model and processing data
+2025-08-29 17:28:58 - ai_shield - ERROR - Error during security analysis: 'numpy.ndarray' object has no attribute 'values'
+2025-08-29 17:30:16 - ai_shield - INFO - AI Shield Engine initialized successfully
+2025-08-29 17:30:16 - ai_shield - INFO - Starting AI Shield security analysis
+2025-08-29 17:30:16 - ai_shield - INFO - Downloading assets from S3 bucket: ai-shield-data-bucket-cj
+2025-08-29 17:30:17 - ai_shield - INFO - Assets downloaded successfully
+2025-08-29 17:30:17 - ai_shield - INFO - Loading model and processing data
+2025-08-29 17:30:17 - ai_shield - INFO - Starting adversarial attacks
+2025-08-29 17:30:17 - ai_shield - INFO - Executing FGSM attack
+2025-08-29 17:30:17 - ai_shield - ERROR - Error during security analysis: The input model must inherit from `nn.Module`.
+2025-08-29 17:31:16 - ai_shield - INFO - AI Shield Engine initialized successfully
+2025-08-29 17:31:16 - ai_shield - INFO - Starting AI Shield security analysis
+2025-08-29 17:31:16 - ai_shield - INFO - Downloading assets from S3 bucket: ai-shield-data-bucket-cj
+2025-08-29 17:31:17 - ai_shield - INFO - Assets downloaded successfully
+2025-08-29 17:31:17 - ai_shield - INFO - Loading model and processing data
+2025-08-29 17:31:17 - ai_shield - INFO - Starting adversarial attacks
+2025-08-29 17:31:17 - ai_shield - INFO - Executing FGSM attack
+2025-08-29 17:31:17 - ai_shield - ERROR - Error during security analysis: FastGradientMethod requires an estimator derived from <class 'art.estimators.estimator.BaseEstimator'> and <class 'art.estimators.estimator.LossGradientsMixin'>, the provided classifier is an instance of <class 'art.estimators.classification.scikitlearn.ScikitlearnRandomForestClassifier'> and is derived from (<class 'art.estimators.classification.scikitlearn.ScikitlearnClassifier'>,).
+2025-08-29 17:33:06 - ai_shield - INFO - AI Shield Engine initialized successfully
+2025-08-29 17:33:06 - ai_shield - INFO - Starting AI Shield security analysis
+2025-08-29 17:33:06 - ai_shield - INFO - Downloading assets from S3 bucket: ai-shield-data-bucket-cj
+2025-08-29 17:33:07 - ai_shield - INFO - Assets downloaded successfully
+2025-08-29 17:33:07 - ai_shield - INFO - Loading model and processing data
+2025-08-29 17:33:07 - ai_shield - INFO - Starting adversarial attacks
+2025-08-29 17:33:07 - ai_shield - INFO - Executing FGSM attack
+2025-08-29 17:33:07 - ai_shield - INFO - Executing PGD attack
+2025-08-29 17:33:07 - ai_shield - INFO - Adversarial attacks completed
+2025-08-29 17:33:07 - ai_shield - INFO - Generating XAI explanations
+2025-08-29 17:33:07 - ai_shield - INFO - Computing SHAP explanations
+2025-08-29 17:33:07 - ai_shield - INFO - Computing LIME explanations
+2025-08-29 17:33:09 - ai_shield - INFO - XAI explanations completed
+2025-08-29 17:33:09 - ai_shield - INFO - Security analysis completed in 2.89 seconds
+2025-08-29 17:34:39 - ai_shield - INFO - AI Shield Engine initialized successfully
+2025-08-29 17:34:39 - ai_shield - INFO - Starting AI Shield security analysis
+2025-08-29 17:34:39 - ai_shield - INFO - Downloading assets from S3 bucket: ai-shield-data-bucket-cj
+2025-08-29 17:34:41 - ai_shield - INFO - Assets downloaded successfully
+2025-08-29 17:34:41 - ai_shield - INFO - Loading model and processing data
+2025-08-29 17:34:41 - ai_shield - INFO - Starting adversarial attacks
+2025-08-29 17:34:41 - ai_shield - INFO - Executing FGSM attack
+2025-08-29 17:34:41 - ai_shield - INFO - Executing PGD attack
+2025-08-29 17:34:41 - ai_shield - INFO - Adversarial attacks completed
+2025-08-29 17:34:41 - ai_shield - INFO - Generating XAI explanations
+2025-08-29 17:34:41 - ai_shield - INFO - Computing SHAP explanations
+2025-08-29 17:34:41 - ai_shield - INFO - Computing LIME explanations
+2025-08-29 17:34:43 - ai_shield - INFO - XAI explanations completed
+2025-08-29 17:34:43 - ai_shield - INFO - Security analysis completed in 3.42 seconds

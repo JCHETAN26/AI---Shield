@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI Shield{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-chart-line"></i> AI Shield Dashboard
+                </h4>
+                <p class="mb-0 mt-2">Monitor and manage your security analyses</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h3 id="totalSessions" class="text-primary">-</h3>
+                <p class="mb-0">Total Sessions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h3 id="completedSessions" class="text-success">-</h3>
+                <p class="mb-0">Completed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h3 id="runningSessions" class="text-warning">-</h3>
+                <p class="mb-0">Running</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h3 id="avgVulnerability" class="text-info">-</h3>
+                <p class="mb-0">Avg Vulnerability</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">
+                    <i class="fas fa-history"></i> Recent Analyses
+                </h5>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-outline-primary btn-sm" onclick="refreshDashboard()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Session ID</th>
+                        <th>Model</th>
+                        <th>Dataset</th>
+                        <th>Status</th>
+                        <th>Vulnerability Score</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="sessionsTable">
+                    <tr>
+                        <td colspan="7" class="text-center">
+                            <i class="fas fa-spinner fa-spin"></i> Loading sessions...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function refreshDashboard() {
+    fetch('/api/sessions')
+        .then(response => response.json())
+        .then(sessions => {
+            updateStats(sessions);
+            updateTable(sessions);
+        })
+        .catch(error => {
+            console.error('Error fetching sessions:', error);
+        });
+}
+
+function updateStats(sessions) {
+    const total = sessions.length;
+    const completed = sessions.filter(s => s.status === 'completed').length;
+    const running = sessions.filter(s => s.status === 'running').length;
+    const avgVuln = sessions.filter(s => s.vulnerability_score !== undefined)
+                          .reduce((sum, s) => sum + s.vulnerability_score, 0) / 
+                   Math.max(1, sessions.filter(s => s.vulnerability_score !== undefined).length);
+    
+    document.getElementById('totalSessions').textContent = total;
+    document.getElementById('completedSessions').textContent = completed;
+    document.getElementById('runningSessions').textContent = running;
+    document.getElementById('avgVulnerability').textContent = 
+        avgVuln ? (avgVuln * 100).toFixed(1) + '%' : 'N/A';
+}
+
+function updateTable(sessions) {
+    const tbody = document.getElementById('sessionsTable');
+    
+    if (sessions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center text-muted">
+                    <i class="fas fa-inbox"></i> No analyses found. 
+                    <a href="/upload">Start your first analysis</a>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = sessions.map(session => {
+        const statusBadge = getStatusBadge(session.status);
+        const vulnerabilityBadge = getVulnerabilityBadge(session.vulnerability_score);
+        const createdDate = new Date(session.created_at).toLocaleDateString();
+        
+        return `
+            <tr>
+                <td><code>${session.session_id.substring(0, 8)}...</code></td>
+                <td>${session.model_file || 'N/A'}</td>
+                <td>${session.data_file || 'N/A'}</td>
+                <td>${statusBadge}</td>
+                <td>${vulnerabilityBadge}</td>
+                <td>${createdDate}</td>
+                <td>
+                    ${getActionButtons(session)}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function getStatusBadge(status) {
+    const badges = {
+        'completed': '<span class="badge bg-success">Completed</span>',
+        'running': '<span class="badge bg-warning">Running</span>',
+        'error': '<span class="badge bg-danger">Error</span>',
+        'uploaded': '<span class="badge bg-info">Uploaded</span>'
+    };
+    return badges[status] || '<span class="badge bg-secondary">Unknown</span>';
+}
+
+function getVulnerabilityBadge(score) {
+    if (score === undefined) return '<span class="text-muted">N/A</span>';
+    
+    const percentage = (score * 100).toFixed(1) + '%';
+    if (score > 0.7) return `<span class="badge bg-danger">${percentage}</span>`;
+    if (score > 0.4) return `<span class="badge bg-warning">${percentage}</span>`;
+    return `<span class="badge bg-success">${percentage}</span>`;
+}
+
+function getActionButtons(session) {
+    let buttons = '';
+    
+    if (session.status === 'completed') {
+        buttons += `
+            <a href="/results/${session.session_id}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-eye"></i> View
+            </a>
+            <a href="/download/${session.session_id}" class="btn btn-sm btn-outline-success">
+                <i class="fas fa-download"></i>
+            </a>
+        `;
+    } else if (session.status === 'running') {
+        buttons += `
+            <a href="/results/${session.session_id}" class="btn btn-sm btn-outline-warning">
+                <i class="fas fa-clock"></i> Monitor
+            </a>
+        `;
+    }
+    
+    return buttons;
+}
+
+// Auto-refresh every 30 seconds
+setInterval(refreshDashboard, 30000);
+
+// Initial load
+document.addEventListener('DOMContentLoaded', refreshDashboard);
+</script>
+{% endblock %}

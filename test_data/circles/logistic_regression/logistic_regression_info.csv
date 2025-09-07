@@ -1,0 +1,2 @@
+model_type,accuracy,features,target,dataset_name,n_samples,n_features,n_classes,has_scaler
+linear,0.4666666666666667,"['x_coord', 'y_coord']",class,Non-linear (Circles),600,2,2,True

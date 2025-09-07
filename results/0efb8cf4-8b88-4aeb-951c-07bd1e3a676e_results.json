@@ -1,0 +1,247 @@
+{
+  "metadata": {
+    "session_id": "0efb8cf4-8b88-4aeb-951c-07bd1e3a676e",
+    "timestamp": "2025-08-29T23:24:37.257329",
+    "model_file": "dummy_model.pkl",
+    "data_file": "dummy_data.csv",
+    "configuration": {
+      "fgsm_epsilon": 0.05,
+      "pgd_epsilon": 0.05,
+      "pgd_alpha": 0.005,
+      "pgd_iterations": 20,
+      "max_samples": 50,
+      "include_shap": true,
+      "include_lime": true
+    }
+  },
+  "dataset_info": {
+    "num_samples": 200,
+    "num_features": 5,
+    "feature_names": [
+      "Transaction Amount",
+      "Transaction Location",
+      "Transaction Time",
+      "User Device Type_desktop",
+      "User Device Type_mobile"
+    ]
+  },
+  "adversarial_attacks": {
+    "fgsm": {
+      "attack_type": "FGSM_sklearn_simulation",
+      "parameters": {
+        "epsilon": 0.05
+      },
+      "original_accuracy": 0.43,
+      "adversarial_accuracy": 0.425,
+      "success_rate": 0.011627906976744196,
+      "num_samples": 200,
+      "perturbation_stats": {
+        "average_perturbation": 0.039074285307347495,
+        "max_perturbation": 0.19263657453273608,
+        "l2_norm": 0.09245347257032176
+      },
+      "adversarial_examples": [
+        [
+          0.23890396013188134,
+          -0.23034253646185132,
+          0.47384985726858575,
+          1.0811640555559532
+        ],
+        [
+          -1.1127404517721962,
+          -1.0836019467316071,
+          0.8174591613751199,
+          -0.9566407012755627
+        ],
+        [
+          0.03573105722053943,
+          -1.2568835410750636,
+          -0.17577163474947044,
+          0.9817260750570391
+        ],
+        [
+          0.24798157084642766,
+          -0.8140317038333479,
+          0.6522526289740986,
+          0.9768981862735033
+        ],
+        [
+          -0.4985988827247257,
+          0.004399489596685605,
+          0.3960642265874906,
+          0.9343973776687874
+        ],
+        [
+          0.34161012218983355,
+          1.179391492707141,
+          1.1874245661884455,
+          -1.066249847043881
+        ],
+        [
+          -0.964503779688203,
+          -0.07647222900432278,
+          0.8294653868467348,
+          -0.9762275368159246
+        ],
+        [
+          -0.03671115148554142,
+          1.458917546068756,
+          0.4113800997520813,
+          1.097626471960999
+        ],
+        [
+          -1.1613980263823915,
+          1.4913221685673628,
+          -0.7055396849760863,
+          0.9439703802370009
+        ],
+        [
+          -0.21716871385554082,
+          -1.6648169752753028,
+          -1.4071424134985657,
+          -0.985169375939752
+        ]
+      ],
+      "note": "Simulation using noise injection for scikit-learn model"
+    },
+    "pgd": {
+      "attack_type": "PGD_sklearn_simulation",
+      "parameters": {
+        "epsilon": 0.05
+      },
+      "original_accuracy": 0.43,
+      "adversarial_accuracy": 0.425,
+      "success_rate": 0.011627906976744196,
+      "num_samples": 200,
+      "perturbation_stats": {
+        "average_perturbation": 0.039074285307347495,
+        "max_perturbation": 0.19263657453273608,
+        "l2_norm": 0.09245347257032176
+      },
+      "adversarial_examples": [
+        [
+          0.23890396013188134,
+          -0.23034253646185132,
+          0.47384985726858575,
+          1.0811640555559532
+        ],
+        [
+          -1.1127404517721962,
+          -1.0836019467316071,
+          0.8174591613751199,
+          -0.9566407012755627
+        ],
+        [
+          0.03573105722053943,
+          -1.2568835410750636,
+          -0.17577163474947044,
+          0.9817260750570391
+        ],
+        [
+          0.24798157084642766,
+          -0.8140317038333479,
+          0.6522526289740986,
+          0.9768981862735033
+        ],
+        [
+          -0.4985988827247257,
+          0.004399489596685605,
+          0.3960642265874906,
+          0.9343973776687874
+        ],
+        [
+          0.34161012218983355,
+          1.179391492707141,
+          1.1874245661884455,
+          -1.066249847043881
+        ],
+        [
+          -0.964503779688203,
+          -0.07647222900432278,
+          0.8294653868467348,
+          -0.9762275368159246
+        ],
+        [
+          -0.03671115148554142,
+          1.458917546068756,
+          0.4113800997520813,
+          1.097626471960999
+        ],
+        [
+          -1.1613980263823915,
+          1.4913221685673628,
+          -0.7055396849760863,
+          0.9439703802370009
+        ],
+        [
+          -0.21716871385554082,
+          -1.6648169752753028,
+          -1.4071424134985657,
+          -0.985169375939752
+        ]
+      ],
+      "note": "Simulation using noise injection for scikit-learn model"
+    }
+  },
+  "xai_explanations": {
+    "shap": {
+      "explainer_type": "failed",
+      "error": "Per-column arrays must each be 1-dimensional",
+      "feature_importance": [],
+      "important_features": [],
+      "shap_values_summary": {},
+      "adversarial_analysis": {}
+    },
+    "lime": {
+      "num_explanations": 0,
+      "explanations": [],
+      "feature_importance": [
+        {
+          "feature": "Transaction Amount",
+          "importance": 0.0
+        },
+        {
+          "feature": "Transaction Location",
+          "importance": 0.0
+        },
+        {
+          "feature": "Transaction Time",
+          "importance": 0.0
+        },
+        {
+          "feature": "User Device Type_desktop",
+          "importance": 0.0
+        },
+        {
+          "feature": "User Device Type_mobile",
+          "importance": 0.0
+        }
+      ],
+      "important_features": [
+        "Transaction Amount",
+        "Transaction Location",
+        "Transaction Time",
+        "User Device Type_desktop",
+        "User Device Type_mobile"
+      ],
+      "adversarial_analysis": {},
+      "summary": {
+        "total_features": 5,
+        "explained_instances": 0,
+        "avg_importance": 0.0
+      }
+    }
+  },
+  "vulnerability_summary": {
+    "overall_vulnerability_score": 0.011627906976744196,
+    "attack_success_rates": {
+      "fgsm": 0.011627906976744196,
+      "pgd": 0.011627906976744196
+    },
+    "critical_features": [],
+    "recommendations": [
+      "LOW RISK: Continue monitoring for new attack vectors",
+      "Regular security assessments recommended"
+    ]
+  }
+}

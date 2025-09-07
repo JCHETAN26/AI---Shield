@@ -1,0 +1,2 @@
+model_type,accuracy,features,target,dataset_name,n_samples,n_features,n_classes,has_scaler
+tree,0.99375,"['x_coord', 'y_coord']",class,Non-linear (Moons),800,2,2,False

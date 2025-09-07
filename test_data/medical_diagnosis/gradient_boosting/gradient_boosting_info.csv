@@ -1,0 +1,2 @@
+model_type,accuracy,features,target,dataset_name,n_samples,n_features,n_classes,has_scaler
+boosting,0.79375,"['temperature_f', 'bp_systolic', 'bp_diastolic', 'heart_rate', 'wbc_count', 'age']",requires_treatment,Medical Diagnosis,800,6,2,False

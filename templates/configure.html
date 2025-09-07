@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Configure Analysis - AI Shield{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-cogs"></i> Configure Security Analysis
+                </h4>
+                <p class="mb-0 mt-2">Customize attack parameters and analysis settings</p>
+            </div>
+            <div class="card-body">
+                <!-- File Info -->
+                <div class="mb-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6><i class="fas fa-file-check text-success"></i> Uploaded Files</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Model:</strong> {{ session_data.model_file }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Dataset:</strong> {{ session_data.data_file }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <form id="analysisForm">
+                    <input type="hidden" name="session_id" value="{{ session_id }}">
+                    
+                    <!-- Adversarial Attack Parameters -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-crosshairs"></i> FGSM Attack
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="fgsm_epsilon" class="form-label">
+                                            Epsilon (Perturbation Magnitude)
+                                        </label>
+                                        <input type="range" class="form-range" id="fgsm_epsilon" name="fgsm_epsilon" 
+                                               min="0.01" max="0.5" step="0.01" value="0.1">
+                                        <div class="d-flex justify-content-between">
+                                            <small>0.01</small>
+                                            <span id="fgsm_epsilon_value" class="badge bg-danger">0.1</span>
+                                            <small>0.5</small>
+                                        </div>
+                                        <div class="form-text">
+                                            Higher values create stronger attacks but less realistic perturbations
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-target"></i> PGD Attack
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="pgd_epsilon" class="form-label">Epsilon</label>
+                                        <input type="range" class="form-range" id="pgd_epsilon" name="pgd_epsilon" 
+                                               min="0.01" max="0.5" step="0.01" value="0.1">
+                                        <div class="d-flex justify-content-between">
+                                            <small>0.01</small>
+                                            <span id="pgd_epsilon_value" class="badge bg-warning text-dark">0.1</span>
+                                            <small>0.5</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="pgd_alpha" class="form-label">Alpha (Step Size)</label>
+                                        <input type="range" class="form-range" id="pgd_alpha" name="pgd_alpha" 
+                                               min="0.001" max="0.1" step="0.001" value="0.01">
+                                        <div class="d-flex justify-content-between">
+                                            <small>0.001</small>
+                                            <span id="pgd_alpha_value" class="badge bg-warning text-dark">0.01</span>
+                                            <small>0.1</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="pgd_iterations" class="form-label">Iterations</label>
+                                        <input type="range" class="form-range" id="pgd_iterations" name="pgd_iterations" 
+                                               min="10" max="100" step="10" value="40">
+                                        <div class="d-flex justify-content-between">
+                                            <small>10</small>
+                                            <span id="pgd_iterations_value" class="badge bg-warning text-dark">40</span>
+                                            <small>100</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- XAI Options -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-lightbulb"></i> Explainable AI Analysis
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="include_shap" name="include_shap" checked>
+                                        <label class="form-check-label" for="include_shap">
+                                            <strong>SHAP Analysis</strong><br>
+                                            <small class="text-muted">Feature importance and explanations</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="include_lime" name="include_lime" checked>
+                                        <label class="form-check-label" for="include_lime">
+                                            <strong>LIME Analysis</strong><br>
+                                            <small class="text-muted">Local interpretable explanations</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="max_samples" class="form-label">Max Samples</label>
+                                    <input type="number" class="form-control" id="max_samples" name="max_samples" 
+                                           value="100" min="10" max="1000">
+                                    <div class="form-text">Samples to analyze (affects processing time)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Preset Configurations -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-magic"></i> Quick Presets
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-outline-success" onclick="setPreset('conservative')">
+                                    <i class="fas fa-shield-alt"></i> Conservative
+                                </button>
+                                <button type="button" class="btn btn-outline-warning" onclick="setPreset('balanced')">
+                                    <i class="fas fa-balance-scale"></i> Balanced
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" onclick="setPreset('aggressive')">
+                                    <i class="fas fa-fire"></i> Aggressive
+                                </button>
+                            </div>
+                            <div class="mt-2 text-center">
+                                <small class="text-muted">
+                                    Conservative: Light testing • Balanced: Standard testing • Aggressive: Intensive testing
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-play"></i> Start Security Analysis
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Update slider values
+document.addEventListener('DOMContentLoaded', function() {
+    const sliders = ['fgsm_epsilon', 'pgd_epsilon', 'pgd_alpha', 'pgd_iterations'];
+    
+    sliders.forEach(sliderId => {
+        const slider = document.getElementById(sliderId);
+        const valueSpan = document.getElementById(sliderId + '_value');
+        
+        slider.addEventListener('input', function() {
+            valueSpan.textContent = this.value;
+        });
+    });
+});
+
+// Preset configurations
+function setPreset(type) {
+    const presets = {
+        conservative: {
+            fgsm_epsilon: 0.05,
+            pgd_epsilon: 0.05,
+            pgd_alpha: 0.005,
+            pgd_iterations: 20,
+            max_samples: 50
+        },
+        balanced: {
+            fgsm_epsilon: 0.1,
+            pgd_epsilon: 0.1,
+            pgd_alpha: 0.01,
+            pgd_iterations: 40,
+            max_samples: 100
+        },
+        aggressive: {
+            fgsm_epsilon: 0.3,
+            pgd_epsilon: 0.3,
+            pgd_alpha: 0.03,
+            pgd_iterations: 80,
+            max_samples: 200
+        }
+    };
+    
+    const config = presets[type];
+    Object.keys(config).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+            element.value = config[key];
+            // Trigger change event for sliders
+            if (element.type === 'range') {
+                element.dispatchEvent(new Event('input'));
+            }
+        }
+    });
+}
+
+// Handle form submission
+document.getElementById('analysisForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const button = this.querySelector('button[type="submit"]');
+    
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting Analysis...';
+    
+    fetch('/start_analysis', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = `/results/${data.session_id}`;
+        } else {
+            alert('Error starting analysis: ' + (data.error || 'Unknown error'));
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-play"></i> Start Security Analysis';
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error.message);
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-play"></i> Start Security Analysis';
+    });
+});
+</script>
+{% endblock %}
