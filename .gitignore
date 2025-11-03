@@ -157,7 +157,6 @@ results/session_*.json
 results/analysis_sessions.json
 results/mitigation_sessions.json
 uploads/*
-*.mov
 *.mp4
 *.avi
 test_results.json
