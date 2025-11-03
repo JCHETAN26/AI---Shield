@@ -21,6 +21,35 @@ sys.path.append('.')
 from main import AIShieldEngine
 from src.utils.model_loader import ModelLoader
 from src.utils.data_processor import DataProcessor
+from src.mitigation.fast_mitigation_engine import FastMitigationEngine
+
+def save_mitigation_results(results, session_id):
+    """Save mitigation results to file."""
+    try:
+        results_file = f"results/mitigation_{session_id}.json"
+        os.makedirs('results', exist_ok=True)
+        
+        # Convert any non-serializable objects
+        serializable_results = {}
+        for strategy, result in results.items():
+            serializable_result = {
+                'strategy': result.get('strategy', strategy),
+                'success': result.get('success', False),
+                'robustness_improvement': result.get('robustness_improvement', 0),
+                'original_accuracy': result.get('original_accuracy', 0),
+                'hardened_accuracy': result.get('hardened_accuracy', 0),
+                'processing_time': result.get('processing_time', 'Unknown'),
+                'error': result.get('error', None)
+            }
+            serializable_results[strategy] = serializable_result
+        
+        with open(results_file, 'w') as f:
+            json.dump(serializable_results, f, indent=2)
+        
+        return results_file
+    except Exception as e:
+        logging.error(f"Failed to save mitigation results: {e}")
+        return None
 
 app = Flask(__name__)
 app.secret_key = 'ai-shield-secret-key-change-in-production'
@@ -38,6 +67,9 @@ RESULTS_FOLDER.mkdir(exist_ok=True)
 
 # Store analysis status
 analysis_status = {}
+
+# Store mitigation status
+mitigation_status = {}
 
 def allowed_file(filename, allowed_extensions):
     """Check if file has allowed extension."""
@@ -126,48 +158,95 @@ def configure_analysis(session_id):
     return render_template('configure.html', session_id=session_id, session_data=session_data)
 
 def setup_demo_session():
-    """Set up a demo session with sample data."""
+    """Set up a demo session with financial sector sample data."""
     demo_session_id = 'demo_' + str(uuid.uuid4())[:8]
     
-    # Check if we have demo data available
+    # Check if we have financial demo data available
     demo_model_path = None
     demo_data_path = None
+    demo_description = ""
     
-    # First priority: dedicated demo files in data directory
-    demo_model = Path('data/demo_model.joblib')
-    demo_dataset = Path('data/demo_dataset.csv')
+    # Priority order for financial demo models (most interesting first)
+    financial_demos = [
+        {
+            'model': 'models/fraud_detection_neural_network_model.joblib',
+            'data': 'data/fraud_detection_neural_network_dataset.csv',
+            'description': 'Credit Card Fraud Detection (Neural Network)',
+            'icon': '🔍'
+        },
+        {
+            'model': 'models/credit_risk_random_forest_model.joblib',
+            'data': 'data/credit_risk_random_forest_dataset.csv',
+            'description': 'Credit Risk Assessment (Random Forest)',
+            'icon': '📊'
+        },
+        {
+            'model': 'models/algorithmic_trading_svm_model.joblib',
+            'data': 'data/algorithmic_trading_svm_dataset.csv',
+            'description': 'Algorithmic Trading Signals (SVM)',
+            'icon': '📈'
+        },
+        {
+            'model': 'models/aml_detection_logistic_model.joblib',
+            'data': 'data/aml_detection_logistic_dataset.csv',
+            'description': 'Anti-Money Laundering Detection (Logistic Regression)',
+            'icon': '🕵️'
+        },
+        {
+            'model': 'models/insurance_fraud_decision_tree_model.joblib',
+            'data': 'data/insurance_fraud_decision_tree_dataset.csv',
+            'description': 'Insurance Fraud Detection (Decision Tree)',
+            'icon': '🛡️'
+        }
+    ]
     
-    if demo_model.exists() and demo_dataset.exists():
-        demo_model_path = str(demo_model)
-        demo_data_path = str(demo_dataset)
-    else:
-        # Second priority: test_data directory
-        test_data_dir = Path('test_data')
-        if test_data_dir.exists():
-            # Try to find a good demo model/data pair
-            binary_simple_dir = test_data_dir / 'binary_simple'
-            if binary_simple_dir.exists():
-                rf_model = binary_simple_dir / 'random_forest' / 'random_forest_model.joblib'
-                test_data = binary_simple_dir / 'binary_simple_test_data.csv'
-                
-                if rf_model.exists() and test_data.exists():
-                    demo_model_path = str(rf_model)
-                    demo_data_path = str(test_data)
+    # Try each financial demo in priority order
+    for demo in financial_demos:
+        model_path = Path(demo['model'])
+        data_path = Path(demo['data'])
+        
+        if model_path.exists() and data_path.exists():
+            demo_model_path = str(model_path)
+            demo_data_path = str(data_path)
+            demo_description = f"{demo['icon']} {demo['description']}"
+            break
     
-    # Fallback: any available demo data
+    # Fallback: any available financial model/data pair
     if not demo_model_path:
+        models_dir = Path('models')
         data_dir = Path('data')
-        if data_dir.exists():
-            # Look for sample model and data
-            model_files = list(data_dir.glob('*.pkl')) + list(data_dir.glob('*.joblib'))
-            data_files = list(data_dir.glob('*.csv'))
+        
+        if models_dir.exists() and data_dir.exists():
+            # Look for any financial model pairs
+            financial_prefixes = ['fraud_detection', 'credit_risk', 'algorithmic_trading', 'aml_detection', 'insurance_fraud']
             
-            if model_files and data_files:
-                demo_model_path = str(model_files[0])
-                demo_data_path = str(data_files[0])
+            for prefix in financial_prefixes:
+                model_files = list(models_dir.glob(f'{prefix}_*.joblib'))
+                if model_files:
+                    model_file = model_files[0]
+                    # Find corresponding dataset
+                    model_name = model_file.stem  # e.g., 'fraud_detection_neural_network_model'
+                    data_name = model_name.replace('_model', '_dataset.csv')
+                    data_file = data_dir / data_name
+                    
+                    if data_file.exists():
+                        demo_model_path = str(model_file)
+                        demo_data_path = str(data_file)
+                        demo_description = f"💼 Financial Model: {prefix.replace('_', ' ').title()}"
+                        break
+    
+    # Final fallback: legacy demo files
+    if not demo_model_path:
+        demo_model = Path('data/demo_model.joblib')
+        demo_dataset = Path('data/demo_dataset.csv')
+        
+        if demo_model.exists() and demo_dataset.exists():
+            demo_model_path = str(demo_model)
+            demo_data_path = str(demo_dataset)
+            demo_description = "📋 Legacy Demo Model"
     
     if not demo_model_path or not demo_data_path:
-        flash('Demo data not available. Please run: python generate_test_data.py to create sample data.', 'warning')
+        flash('Financial demo data not available. Please run: python create_demo_models.py to create financial models.', 'warning')
         return redirect(url_for('upload_files'))
     
     # Create demo session
@@ -178,16 +257,12 @@ def setup_demo_session():
         'data_file': Path(demo_data_path).name,
         'status': 'configured',
         'upload_time': datetime.now().isoformat(),
-        'is_demo': True
+        'is_demo': True,
+        'demo_description': demo_description
     }
     
-    flash(f'Demo session created! Using {Path(demo_model_path).name} and {Path(demo_data_path).name}', 'success')
+    flash(f'Financial Demo Created! {demo_description}', 'success')
     return render_template('configure.html', session_id=demo_session_id, session_data=analysis_status[demo_session_id])
-
-@app.route('/demo')
-def demo():
-    """Direct route for demo access."""
-    return setup_demo_session()
 
 @app.route('/start_analysis', methods=['POST'])
 def start_analysis():
@@ -427,6 +502,225 @@ def dashboard():
     """Analysis dashboard."""
     return render_template('dashboard.html')
 
+@app.route('/mitigate/<session_id>', methods=['GET', 'POST'])
+def mitigate_model(session_id):
+    """Apply mitigation strategies to vulnerable model."""
+    if session_id not in analysis_status:
+        flash('Session not found!', 'error')
+        return redirect(url_for('index'))
+    
+    session_data = analysis_status[session_id]
+    
+    if session_data['status'] != 'completed':
+        flash('Analysis must be completed before mitigation!', 'error')
+        return redirect(url_for('view_results', session_id=session_id))
+    
+    if request.method == 'GET':
+        # Show mitigation options page
+        return render_template('mitigation.html', 
+                             session_id=session_id, 
+                             session_data=session_data)
+    
+    elif request.method == 'POST':
+        # Run mitigation strategies
+        selected_strategies = request.form.getlist('strategies')
+        
+        if not selected_strategies:
+            flash('Please select at least one mitigation strategy!', 'warning')
+            return render_template('mitigation.html', 
+                                 session_id=session_id, 
+                                 session_data=session_data)
+        
+        # Start mitigation in background
+        mitigation_session_id = f"{session_id}_mitigation"
+        
+        analysis_status[mitigation_session_id] = {
+            'status': 'running',
+            'progress': 0,
+            'created_at': datetime.now().isoformat(),
+            'original_session': session_id,
+            'selected_strategies': selected_strategies
+        }
+        
+        # Run mitigation in background thread
+        thread = threading.Thread(
+            target=run_mitigation_analysis,
+            args=(mitigation_session_id, session_id, selected_strategies)
+        )
+        thread.daemon = True
+        thread.start()
+        
+        return render_template('mitigation_progress.html', 
+                             session_id=mitigation_session_id,
+                             original_session=session_id)
+
+@app.route('/mitigation_results/<session_id>')
+def view_mitigation_results(session_id):
+    """View mitigation analysis results."""
+    if session_id not in analysis_status:
+        flash('Mitigation session not found!', 'error')
+        return redirect(url_for('index'))
+    
+    session_data = analysis_status[session_id]
+    
+    if session_data['status'] != 'completed':
+        return render_template('mitigation_progress.html', 
+                             session_id=session_id,
+                             session_data=session_data)
+    
+    results = session_data.get('results', {})
+    original_session = session_data.get('original_session', '')
+    
+    return render_template('mitigation_results.html', 
+                         session_id=session_id,
+                         original_session=original_session,
+                         results=results)
+
+@app.route('/download_hardened_model/<session_id>')
+def download_hardened_model(session_id):
+    """Download the best hardened model."""
+    if session_id not in analysis_status:
+        return jsonify({'error': 'Session not found'}), 404
+    
+    session_data = analysis_status[session_id]
+    
+    if session_data['status'] != 'completed':
+        return jsonify({'error': 'Mitigation not completed'}), 400
+    
+    hardened_model_file = session_data.get('hardened_model_file')
+    if not hardened_model_file or not os.path.exists(hardened_model_file):
+        return jsonify({'error': 'Hardened model file not found'}), 404
+    
+    return send_file(hardened_model_file, 
+                    as_attachment=True, 
+                    download_name=f'hardened_model_{session_id}.joblib')
+
+def run_mitigation_analysis(mitigation_session_id, original_session_id, selected_strategies):
+    """Run mitigation analysis in background thread."""
+    try:
+        # Update progress
+        analysis_status[mitigation_session_id].update({
+            'status': 'running',
+            'progress': 10,
+            'message': 'Loading original analysis results...'
+        })
+        
+        # Get original session data
+        original_session = analysis_status[original_session_id]
+        model_path = original_session.get('model_path', original_session['model_file'])
+        data_path = original_session.get('data_path', original_session['data_file'])
+        
+        # Ensure we have full paths - avoid double path prefixes
+        if not os.path.isabs(model_path) and not model_path.startswith('models/'):
+            model_path = os.path.join('models', model_path)
+        if not os.path.isabs(data_path) and not data_path.startswith('data/'):
+            data_path = os.path.join('data', data_path)
+        
+        # Load model and data
+        analysis_status[mitigation_session_id].update({
+            'progress': 20,
+            'message': 'Loading model and data...'
+        })
+        
+        model_loader = ModelLoader()
+        data_processor = DataProcessor()
+        
+        model = model_loader.load_model(model_path)
+        data_dict = data_processor.load_and_process_data(data_path)
+        X_train = data_dict['X_train']
+        X_test = data_dict['X_test'] 
+        y_train = data_dict['y_train']
+        y_test = data_dict['y_test']
+        
+        # Initialize mitigation engine
+        analysis_status[mitigation_session_id].update({
+            'progress': 30,
+            'message': 'Initializing mitigation engine...'
+        })
+        
+        mitigation_engine = FastMitigationEngine()
+        
+        # Run selected mitigation strategies using the optimized method
+        analysis_status[mitigation_session_id].update({
+            'progress': 40,
+            'message': 'Running mitigation strategies...'
+        })
+        
+        results = mitigation_engine.apply_mitigation_strategies(
+            model, X_train, y_train, X_test, y_test, selected_strategies
+        )
+        
+        analysis_status[mitigation_session_id].update({
+            'progress': 80,
+            'message': 'Processing results...'
+        })
+        
+        # Find best strategy
+        analysis_status[mitigation_session_id].update({
+            'progress': 90,
+            'message': 'Generating recommendations...'
+        })
+        
+        successful_strategies = [r for r in results.values() if r.get('success', False)]
+        
+        if successful_strategies:
+            best_strategy = max(successful_strategies, 
+                              key=lambda x: x.get('robustness_improvement', 0))
+            
+            # Save best hardened model if available
+            hardened_model_path = None
+            if 'model' in best_strategy:
+                hardened_model_path = RESULTS_FOLDER / f'hardened_model_{mitigation_session_id}.joblib'
+                import joblib
+                joblib.dump(best_strategy['model'], hardened_model_path)
+            
+            summary = {
+                'total_strategies': len(selected_strategies),
+                'successful_strategies': len(successful_strategies),
+                'best_strategy': best_strategy.get('strategy', 'Unknown'),
+                'best_improvement': best_strategy.get('robustness_improvement', 0),
+                'original_vulnerability': original_session.get('results', {}).get('vulnerability_summary', {}).get('overall_vulnerability_score', 0),
+                'recommendations': mitigation_engine._generate_recommendations(results)
+            }
+        else:
+            hardened_model_path = None
+            summary = {
+                'total_strategies': len(selected_strategies),
+                'successful_strategies': 0,
+                'best_strategy': None,
+                'best_improvement': 0,
+                'recommendations': ['All selected mitigation strategies failed. Try different approaches.']
+            }
+        
+        # Save results
+        final_results = {
+            'mitigation_results': results,
+            'summary': summary,
+            'timestamp': datetime.now().isoformat(),
+            'selected_strategies': selected_strategies
+        }
+        
+        results_file = save_mitigation_results(final_results['mitigation_results'], mitigation_session_id)
+        
+        # Update session status
+        analysis_status[mitigation_session_id].update({
+            'status': 'completed',
+            'progress': 100,
+            'message': 'Mitigation analysis completed!',
+            'results': final_results,
+            'results_file': results_file,
+            'hardened_model_file': str(hardened_model_path) if hardened_model_path else None
+        })
+        
+    except Exception as e:
+        analysis_status[mitigation_session_id].update({
+            'status': 'failed',
+            'progress': 0,
+            'error': str(e),
+            'message': f'Mitigation failed: {str(e)}'
+        })
+        logging.error(f"Mitigation failed for session {mitigation_session_id}: {str(e)}")
+
 @app.errorhandler(413)
 def too_large(e):
     flash('File is too large! Maximum size is 500MB.', 'error')
@@ -436,10 +730,11 @@ if __name__ == '__main__':
     # Set up logging
     logging.basicConfig(level=logging.INFO)
     
-    print("🚀 Starting AI Shield Web Interface...")
-    print("📊 Dashboard: http://localhost:5000")
-    print("📤 Upload: http://localhost:5000/upload")
-    print("🔍 API: http://localhost:5000/api/sessions")
-    
     port = int(os.environ.get('FLASK_RUN_PORT', 5001))
-    app.run(debug=True, host='0.0.0.0', port=port)
+    
+    print("🚀 Starting AI Shield Web Interface...")
+    print(f"📊 Dashboard: http://localhost:{port}")
+    print(f"📤 Upload: http://localhost:{port}/upload")
+    print(f"🔍 API: http://localhost:{port}/api/sessions")
+    
+    app.run(debug=False, host='0.0.0.0', port=port)

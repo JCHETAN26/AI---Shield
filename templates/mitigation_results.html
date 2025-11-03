@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Shield - Mitigation Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #f8f9fa; }
+        .strategy-card {
+            transition: transform 0.2s;
+        }
+        .strategy-card:hover {
+            transform: translateY(-2px);
+        }
+        .success-card {
+            border-left: 4px solid #28a745;
+        }
+        .failed-card {
+            border-left: 4px solid #dc3545;
+        }
+        .improvement-positive {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .improvement-negative {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .improvement-neutral {
+            color: #6c757d;
+            font-weight: bold;
+        }
+        .best-strategy {
+            border: 2px solid #28a745;
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .download-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shield-alt me-2"></i>AI Shield
+            </a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Dashboard</a>
+                <a class="nav-link" href="/upload">Upload</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Success Alert -->
+        <div class="alert alert-success d-flex align-items-center mb-4">
+            <i class="fas fa-check-circle me-3 fa-2x"></i>
+            <div>
+                <h5 class="mb-1">✅ Mitigation Analysis Complete!</h5>
+                <small>Your model has been analyzed and hardened against adversarial attacks.</small>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                        <h4>{{ results.summary.successful_strategies }}/{{ results.summary.total_strategies }}</h4>
+                        <small>Successful Strategies</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-arrow-up fa-2x mb-2"></i>
+                        <h4>
+                            {% if results.summary.best_improvement %}
+                                {{ "%.1f" | format(results.summary.best_improvement * 100) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </h4>
+                        <small>Best Robustness Improvement</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-award fa-2x mb-2"></i>
+                        <h5 style="font-size: 0.9rem;">
+                            {% if results.summary.best_strategy %}
+                                {{ results.summary.best_strategy.replace('_', ' ').title() }}
+                            {% else %}
+                                None
+                            {% endif %}
+                        </h5>
+                        <small>Best Strategy</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-download fa-2x mb-2"></i>
+                        <h6>Hardened Model</h6>
+                        <small>Ready for Download</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Before/After Comparison -->
+        {% if results.summary.original_vulnerability is defined %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-balance-scale me-2"></i>Before vs After Comparison</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-5">
+                                <div class="card bg-danger text-white">
+                                    <div class="card-body">
+                                        <h3>{{ "%.1f" | format(results.summary.original_vulnerability * 100) }}%</h3>
+                                        <p>Original Vulnerability</p>
+                                        <small><i class="fas fa-exclamation-triangle"></i> High Risk</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-arrow-right fa-3x text-success"></i>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body">
+                                        <h3>
+                                            {% set improved_vuln = results.summary.original_vulnerability - results.summary.best_improvement %}
+                                            {{ "%.1f" | format(improved_vuln * 100) }}%
+                                        </h3>
+                                        <p>Improved Vulnerability</p>
+                                        <small><i class="fas fa-shield-alt"></i> Enhanced Protection</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Strategy Results -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-bar me-2"></i>Mitigation Strategy Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for strategy_name, strategy_result in results.mitigation_results.items() %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card strategy-card h-100 {% if strategy_result.success %}success-card{% if strategy_name == results.summary.best_strategy %} best-strategy{% endif %}{% else %}failed-card{% endif %}">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h6 class="card-title">
+                                                {% if strategy_name == 'adversarial_training' %}
+                                                    <i class="fas fa-dumbbell text-primary"></i> Adversarial Training
+                                                {% elif strategy_name == 'defensive_distillation' %}
+                                                    <i class="fas fa-filter text-success"></i> Defensive Distillation
+                                                {% elif strategy_name == 'feature_preprocessing' %}
+                                                    <i class="fas fa-cogs text-info"></i> Feature Preprocessing
+                                                {% elif strategy_name == 'ensemble_defense' %}
+                                                    <i class="fas fa-users text-warning"></i> Ensemble Defense
+                                                {% elif strategy_name == 'anomaly_detection' %}
+                                                    <i class="fas fa-search text-danger"></i> Anomaly Detection
+                                                {% else %}
+                                                    <i class="fas fa-cog"></i> {{ strategy_name.replace('_', ' ').title() }}
+                                                {% endif %}
+                                            </h6>
+                                            {% if strategy_result.success %}
+                                                <span class="badge bg-success">Success</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Failed</span>
+                                            {% endif %}
+                                        </div>
+
+                                        {% if strategy_result.success %}
+                                            <div class="mb-2">
+                                                <small class="text-muted">Original Accuracy:</small>
+                                                <div class="fw-bold">{{ "%.1f" | format(strategy_result.original_accuracy * 100) }}%</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <small class="text-muted">Hardened Accuracy:</small>
+                                                <div class="fw-bold">{{ "%.1f" | format(strategy_result.hardened_accuracy * 100) }}%</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <small class="text-muted">Robustness Improvement:</small>
+                                                <div class="{% if strategy_result.robustness_improvement > 0 %}improvement-positive{% elif strategy_result.robustness_improvement < 0 %}improvement-negative{% else %}improvement-neutral{% endif %}">
+                                                    {% if strategy_result.robustness_improvement > 0 %}+{% endif %}{{ "%.1f" | format(strategy_result.robustness_improvement * 100) }}%
+                                                    {% if strategy_result.robustness_improvement > 0 %}
+                                                        <i class="fas fa-arrow-up"></i>
+                                                    {% elif strategy_result.robustness_improvement < 0 %}
+                                                        <i class="fas fa-arrow-down"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-minus"></i>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                            <!-- Strategy-specific metrics -->
+                                            {% if strategy_name == 'anomaly_detection' and strategy_result.detection_rate %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">Attack Detection Rate:</small>
+                                                    <div class="fw-bold text-info">{{ "%.1f" | format(strategy_result.detection_rate * 100) }}%</div>
+                                                </div>
+                                            {% endif %}
+
+                                            {% if strategy_name == 'defensive_distillation' and strategy_result.temperature %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">Temperature:</small>
+                                                    <div class="fw-bold">{{ strategy_result.temperature }}</div>
+                                                </div>
+                                            {% endif %}
+
+                                            {% if strategy_name == 'ensemble_defense' and strategy_result.ensemble_size %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">Ensemble Size:</small>
+                                                    <div class="fw-bold">{{ strategy_result.ensemble_size }} models</div>
+                                                </div>
+                                            {% endif %}
+
+                                        {% else %}
+                                            <div class="text-danger">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                {{ strategy_result.error if strategy_result.error else 'Strategy failed to execute' }}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if strategy_name == results.summary.best_strategy %}
+                                            <div class="mt-2">
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-crown"></i> Best Strategy
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-lightbulb me-2"></i>Recommendations</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if results.summary.recommendations %}
+                            <ul class="list-unstyled mb-0">
+                                {% for recommendation in results.summary.recommendations %}
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    {{ recommendation }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">No specific recommendations available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card download-section">
+                    <div class="card-body text-center">
+                        <h4><i class="fas fa-download me-2"></i>Download Hardened Model</h4>
+                        <p class="mb-3">Get your production-ready model with improved adversarial robustness</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            {% if session_id.endswith('_mitigation') %}
+                                <a href="/download_hardened_model/{{ session_id }}" class="btn btn-light btn-lg">
+                                    <i class="fas fa-shield-alt me-2"></i>Download Hardened Model (.joblib)
+                                </a>
+                            {% endif %}
+                            <a href="/download/{{ session_id }}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-file-download me-2"></i>Download Results (.json)
+                            </a>
+                        </div>
+                        <small class="d-block mt-2 opacity-75">
+                            The hardened model includes the best-performing mitigation strategy applied to your original model.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <a href="/results/{{ original_session }}" class="btn btn-secondary btn-lg me-3">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Original Results
+                </a>
+                <a href="/mitigate/{{ original_session }}" class="btn btn-outline-primary btn-lg me-3">
+                    <i class="fas fa-redo me-2"></i>Try Different Strategies
+                </a>
+                <a href="/" class="btn btn-primary btn-lg">
+                    <i class="fas fa-home me-2"></i>New Analysis
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add some interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate metric cards on load
+            const metricCards = document.querySelectorAll('.metric-card');
+            metricCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        card.style.transform = 'scale(1)';
+                    }, 200);
+                }, index * 100);
+            });
+
+            // Highlight best strategy
+            const bestStrategyCard = document.querySelector('.best-strategy');
+            if (bestStrategyCard) {
+                setInterval(() => {
+                    bestStrategyCard.style.boxShadow = '0 4px 20px rgba(40, 167, 69, 0.4)';
+                    setTimeout(() => {
+                        bestStrategyCard.style.boxShadow = '0 4px 8px rgba(40, 167, 69, 0.2)';
+                    }, 1000);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

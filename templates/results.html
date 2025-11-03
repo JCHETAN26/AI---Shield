@@ -16,6 +16,9 @@
                         <p class="mb-0">Session: {{ session_id }}</p>
                     </div>
                     <div class="col-auto">
+                        <a href="/mitigate/{{ session_id }}" class="btn btn-warning me-2">
+                            <i class="fas fa-shield-alt"></i> Apply Mitigation
+                        </a>
                         <a href="/download/{{ session_id }}" class="btn btn-light">
                             <i class="fas fa-download"></i> Download Report
                         </a>
@@ -60,6 +63,51 @@
                 </div>
             </div>
         </div>
+
+        <!-- Mitigation Call-to-Action -->
+        {% if results.vulnerability_summary.overall_vulnerability_score > 0.1 %}
+        <div class="card shadow mb-4 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shield-alt"></i> Security Enhancement Available
+                        </h5>
+                        <small>Your model shows vulnerability - apply mitigation strategies to improve security</small>
+                    </div>
+                    <div class="col-auto">
+                        <a href="/mitigate/{{ session_id }}" class="btn btn-dark">
+                            <i class="fas fa-shield-alt me-1"></i> Apply Defenses
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <p class="mb-2">
+                            <strong>Vulnerability Detected:</strong> 
+                            Your model is {{ "%.1f"|format(results.vulnerability_summary.overall_vulnerability_score * 100) }}% vulnerable to adversarial attacks.
+                        </p>
+                        <p class="mb-0 text-muted">
+                            AI Shield offers 5 proven mitigation strategies to harden your model:
+                            Adversarial Training, Defensive Distillation, Feature Preprocessing, Ensemble Defense, and Anomaly Detection.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="d-flex justify-content-center align-items-center h-100">
+                            <div>
+                                <i class="fas fa-arrow-right fa-2x text-success"></i>
+                                <div class="mt-2">
+                                    <small class="text-success"><strong>Reduce Risk</strong></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
         
         <!-- Risk Assessment -->
         <div class="card mb-4">

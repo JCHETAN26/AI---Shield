@@ -22,6 +22,7 @@ sys.path.append(str(Path(__file__).parent / "src"))
 from src.aws.s3_manager import S3Manager
 from src.adversarial.attack_engine import AdversarialAttackEngine
 from src.xai.explanation_engine import XAIExplanationEngine
+from src.mitigation.mitigation_engine import MitigationEngine
 from src.utils.model_loader import ModelLoader
 from src.utils.data_processor import DataProcessor
 from src.utils.logger import setup_logger
@@ -56,6 +57,7 @@ class AIShieldEngine:
         self.data_processor = DataProcessor()
         self.attack_engine = AdversarialAttackEngine()
         self.xai_engine = XAIExplanationEngine()
+        self.mitigation_engine = MitigationEngine()
         
         self.logger.info("AI Shield Engine initialized successfully")
     
@@ -282,6 +284,77 @@ class AIShieldEngine:
             summary['recommendations'].append("Low vulnerability - monitor for new attack vectors")
         
         return summary
+
+    def run_mitigation_analysis(self, model, X_train, y_train, X_test, y_test, selected_strategies=None) -> Dict[str, Any]:
+        """
+        Run mitigation analysis on the model.
+        
+        Args:
+            model: Loaded ML model
+            X_train: Training features
+            y_train: Training labels
+            X_test: Test features
+            y_test: Test labels
+            selected_strategies: List of mitigation strategies to apply (optional)
+            
+        Returns:
+            Mitigation analysis results dictionary
+        """
+        self.logger.info("Starting mitigation analysis")
+        
+        if selected_strategies is None:
+            # Run all mitigation strategies
+            results = self.mitigation_engine.run_all_mitigations(
+                model, X_train, y_train, X_test, y_test
+            )
+        else:
+            # Run specific strategies
+            mitigation_results = {}
+            strategy_methods = {
+                'adversarial_training': self.mitigation_engine.adversarial_training,
+                'defensive_distillation': self.mitigation_engine.defensive_distillation,
+                'feature_preprocessing': self.mitigation_engine.feature_preprocessing,
+                'ensemble_defense': self.mitigation_engine.ensemble_defense,
+                'anomaly_detection': self.mitigation_engine.anomaly_detection
+            }
+            
+            for strategy in selected_strategies:
+                if strategy in strategy_methods:
+                    self.logger.info(f"Running {strategy}")
+                    result = strategy_methods[strategy](model, X_train, y_train, X_test, y_test)
+                    mitigation_results[strategy] = result
+            
+            # Generate summary for selected strategies
+            successful_strategies = [r for r in mitigation_results.values() if r.get('success', False)]
+            
+            if successful_strategies:
+                best_strategy = max(successful_strategies, 
+                                  key=lambda x: x.get('robustness_improvement', 0))
+                
+                summary = {
+                    'total_strategies': len(selected_strategies),
+                    'successful_strategies': len(successful_strategies),
+                    'best_strategy': best_strategy['strategy'],
+                    'best_improvement': best_strategy.get('robustness_improvement', 0),
+                    'recommendations': self.mitigation_engine._generate_recommendations(mitigation_results)
+                }
+            else:
+                summary = {
+                    'total_strategies': len(selected_strategies),
+                    'successful_strategies': 0,
+                    'best_strategy': None,
+                    'best_improvement': 0,
+                    'recommendations': ['Selected mitigation strategies failed. Try different approaches.']
+                }
+            
+            results = {
+                'mitigation_results': mitigation_results,
+                'summary': summary,
+                'timestamp': datetime.now().isoformat()
+            }
+        
+        self.logger.info("Mitigation analysis completed")
+        return results
 
 
 def main():

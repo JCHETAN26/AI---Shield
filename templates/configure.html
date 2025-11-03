@@ -14,21 +14,29 @@
             </div>
             <div class="card-body">
                 <!-- File Info -->
-                <div class="mb-4">
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <h6><i class="fas fa-file-check text-success"></i> Uploaded Files</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <strong>Model:</strong> {{ session_data.model_file }}
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Dataset:</strong> {{ session_data.data_file }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<div class="mb-4">
+    <div class="card bg-light">
+        <div class="card-body">
+            {% if session_data.is_demo %}
+            <h6><i class="fas fa-flask text-primary"></i> Financial Demo Session</h6>
+            <div class="alert alert-info mb-3">
+                <strong>{{ session_data.demo_description }}</strong>
+                <br><small>This demo uses realistic financial data to test adversarial vulnerabilities in financial AI systems.</small>
+            </div>
+            {% else %}
+            <h6><i class="fas fa-file-check text-success"></i> Uploaded Files</h6>
+            {% endif %}
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Model:</strong> {{ session_data.model_file }}
                 </div>
+                <div class="col-md-6">
+                    <strong>Dataset:</strong> {{ session_data.data_file }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                 
                 <form id="analysisForm">
                     <input type="hidden" name="session_id" value="{{ session_id }}">
